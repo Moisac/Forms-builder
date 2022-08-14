@@ -15,6 +15,8 @@ import {
 import { NextPage } from 'next'
 import { signIn } from 'next-auth/react'
 import { FormEventHandler, useState } from 'react'
+import SiteLayout from '../../layouts/SiteLayout'
+import AuthPrivateRoute from '../../routes/AuthPrivateRoute'
   
 export const SignUp: NextPage = ():JSX.Element => {
     const [email, setEmail] = useState('')
@@ -30,6 +32,7 @@ export const SignUp: NextPage = ():JSX.Element => {
     }
 
     return (
+      <SiteLayout>
         <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
           <Stack spacing="8">
             <Stack spacing="6">
@@ -74,7 +77,8 @@ export const SignUp: NextPage = ():JSX.Element => {
             </Box>
           </Stack>
         </Container>
+      </SiteLayout>
       )
   }
 
-  export default SignUp
+  export default AuthPrivateRoute(SignUp)

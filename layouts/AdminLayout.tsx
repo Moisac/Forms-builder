@@ -7,11 +7,11 @@ interface IProps {
     children: ReactElement
 }
 
-const SiteLayout = ({ children }: IProps): ReactElement => {
+const AdminLayout = ({ children }: IProps): ReactElement => {
     return (
         <>
             <div className="pageContent">
-                <Header type='site'/>
+                <Header type='admin' />
                     { children }
                 <Footer />
             </div>
@@ -19,4 +19,4 @@ const SiteLayout = ({ children }: IProps): ReactElement => {
     )
 }
 
-export default SiteLayout
+export default AdminLayout
