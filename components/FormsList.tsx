@@ -1,5 +1,7 @@
-import { Box, Center, Flex, Skeleton, Text } from '@chakra-ui/react'
+import { Box, Flex, Skeleton, Text } from '@chakra-ui/react'
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import { FiEdit2 } from 'react-icons/fi'
 
 const FormsList = () => {
     const [forms, setForms] = useState([])
@@ -8,7 +10,7 @@ const FormsList = () => {
     const fetchForms = async() => {
         try {
             setIsLoaded(false)
-            const data = await fetch(`api/form`)
+            const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form`)
             const json  = await data.json()
             setForms(json)
 
@@ -32,6 +34,7 @@ const FormsList = () => {
                 bg='white' 
                 shadow='xs' 
                 p='4' 
+                mb='5'
                 borderRadius='10' 
                 _hover={{ shadow: 'md' }} 
                 key={form?.id}
@@ -44,6 +47,11 @@ const FormsList = () => {
                 </Box>
                 <Box>
                     <Text>{ form?.published ? 'Active' : 'Disabled' }</Text>
+                </Box>
+                <Box>
+                    <Link href={`/admin/create-form/${form?.id}`}>
+                        <FiEdit2 />
+                    </Link>
                 </Box>
             </Flex>
             )) 

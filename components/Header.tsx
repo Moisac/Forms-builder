@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Stack,
@@ -19,24 +19,65 @@ import {
   Avatar,
   VStack,
   SkeletonCircle,
-  IconButton
+  IconButton,
+  Spinner
 } from "@chakra-ui/react";
 import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
 import { FiChevronDown, FiMenu } from "react-icons/fi"
 import { BsClipboardPlus } from "react-icons/bs"
+import Router, { useRouter } from "next/router"
 
 interface IProps {
     type: 'site' | 'admin',
 }
 
 const Header = ({ type }: IProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const handleToggle = () => (isOpen ? onClose() : onOpen());
-  const session = useSession()
+    // const [createdForm, setCreatedForm] = useState({})
+    const [loading, setLoading] = useState(false)
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const handleToggle = () => (isOpen ? onClose() : onOpen());
+    const session = useSession()
+    const router = useRouter()
+
+    const createForm = async() => {
+        const addedForm = {
+            title: "Default form title",
+            questions: "",
+            settings: "",
+            userId: "cl6t9t9re0318jwubdzps0r01"
+        }
+        
+        try {
+            setLoading(true)
+            const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(addedForm),
+            })
+            const json  = await data.json()
+            return json
+
+        } catch(err) {
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleLogout = () => {
         signOut()
+    }
+
+    const handleAddFrom = async () => {
+        const createdForm = await createForm()
+        console.log({createdForm})
+        if(!!createdForm?.id) {
+            router.push(`/admin/create-form/${createdForm?.id}`)
+        }
     }
 
   return (
@@ -113,11 +154,17 @@ const Header = ({ type }: IProps) => {
             (
                 <Flex alignItems={'center'}>
                    { type === 'admin' && 
-                    <Link href='/admin/create-form'>
-                        <Button leftIcon={<BsClipboardPlus />} colorScheme='blue' variant='outline' mr='4'>
-                            Create form
+
+                        <Button 
+                            leftIcon={<BsClipboardPlus />} 
+                            colorScheme='blue' 
+                            variant='outline' 
+                            mr='4'
+                            onClick={handleAddFrom}
+                        >
+                            { loading ? <Spinner size='sm' /> : 'Create Form'}
                         </Button>
-                    </Link>
+                    
                    }
                     <Menu>
                         <MenuButton

@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client'
+import {NextApiRequest, NextApiResponse} from 'next'
 
 const prisma = new PrismaClient()
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case 'GET':
       return await getFormById(req, res)
-    case 'PUT':
+    case 'PATCH':
       return await editForm(req, res)
     case 'DELETE':
       return await deleteForm(req, res)
@@ -15,10 +16,11 @@ export default async function handler(req, res) {
   }
 }
 
-const getFormById = async (req, res) => {
+const getFormById = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { id } = req.query
   try {
-    const forms = await prisma.form.findUnique({
-      where: { id: req.params.id },
+    const forms = await prisma.form.findFirst({
+      where: { id },
     })
     res.status(200).json(forms)
   } catch (err) {
@@ -26,10 +28,11 @@ const getFormById = async (req, res) => {
   }
 }
 
-const editForm = async (req, res) => {
+const editForm = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { id } = req.query
   try {
-    const forms = await prisma.form.edit({
-      where: { id: req.params.id },
+    const forms = await prisma.form.update({
+      where: { id },
       data: { ...req.body },
     })
     res.status(200).json(forms)
@@ -38,10 +41,11 @@ const editForm = async (req, res) => {
   }
 }
 
-const deleteForm = async (req, res) => {
+const deleteForm = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { id } = req.query
   try {
     const forms = await prisma.form.delete({
-      where: { id: req.params.id },
+      where: { id },
     })
     res.status(200).json(forms)
   } catch (err) {

@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client'
+import {NextApiRequest, NextApiResponse} from 'next'
 
 const prisma = new PrismaClient()
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case 'GET':
       return await getAllForms(req, res)
@@ -13,7 +14,7 @@ export default async function handler(req, res) {
   }
 }
 
-const getAllForms = async (req, res) => {
+const getAllForms = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const forms = await prisma.form.findMany()
     res.status(200).json(forms)
@@ -22,7 +23,7 @@ const getAllForms = async (req, res) => {
   }
 }
 
-const addForm = async (req, res) => {
+const addForm = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const forms = await prisma.form.create({
       data: { ...req.body },
