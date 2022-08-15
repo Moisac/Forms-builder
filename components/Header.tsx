@@ -14,16 +14,23 @@ import {
   MenuItem,
   MenuDivider,
   Skeleton,
+  useColorModeValue,
+  HStack,
+  Avatar,
+  VStack,
+  SkeletonCircle,
+  IconButton
 } from "@chakra-ui/react";
-import { GiHamburgerMenu } from "react-icons/gi";
 import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
+import { FiChevronDown, FiMenu } from "react-icons/fi"
+import { BsClipboardPlus } from "react-icons/bs"
 
 interface IProps {
-    type: 'site' | 'admin'
+    type: 'site' | 'admin',
 }
 
-const Header = ({ type}: IProps) => {
+const Header = ({ type }: IProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const handleToggle = () => (isOpen ? onClose() : onOpen());
   const session = useSession()
@@ -39,18 +46,23 @@ const Header = ({ type}: IProps) => {
       justify="space-between"
       wrap="wrap"
       padding={6}
-      bg="teal.500"
-      color="white"
+      bg={useColorModeValue('white', 'gray.900')}
+      borderBottomWidth="1px"
     >
+       { type === 'site' && 
+         <IconButton
+            display={{ base: 'flex', md: 'none' }}
+            onClick={handleToggle}
+            variant="outline"
+            aria-label="open menu"
+            icon={<FiMenu />}
+        />
+       }
       <Flex align="center" mr={5}>
         <Heading as="h1" size="lg" letterSpacing={"tighter"}>
           Forms builder
         </Heading>
       </Flex>
-
-      <Box display={{ base: "block", md: "none" }} onClick={handleToggle}>
-        <GiHamburgerMenu />
-      </Box>
 
       {
         type === 'site' &&
@@ -99,53 +111,77 @@ const Header = ({ type}: IProps) => {
             :
             session.status === 'authenticated' ?
             (
-                <Box
-                    display={{ base: isOpen ? "block" : "none", md: "block" }}
-                    mt={{ base: 4, md: 0 }}
-                >
-                <Menu>
-                    <MenuButton as={Button} colorScheme='blue'>
-                        { session?.data?.user?.email }
-                    </MenuButton>
-                    <MenuList color='black'>
-                        { type === 'site' ?
-                        (
+                <Flex alignItems={'center'}>
+                   { type === 'admin' && 
+                    <Link href='/admin/create-form'>
+                        <Button leftIcon={<BsClipboardPlus />} colorScheme='blue' variant='outline' mr='4'>
+                            Create form
+                        </Button>
+                    </Link>
+                   }
+                    <Menu>
+                        <MenuButton
+                            py={2}
+                            transition="all 0.3s"
+                            _focus={{ boxShadow: 'none' }}>
+                        <HStack>
+                            <Avatar
+                                size={'sm'}
+                            />
+                            <VStack
+                                display={{ base: 'none', md: 'flex' }}
+                                alignItems="flex-start"
+                                spacing="1px"
+                                ml="2"
+                            >
+                                <Text fontSize="sm">{ session?.data?.user?.email }</Text>
+                            </VStack>
+                            <Box display={{ base: 'none', md: 'flex' }}>
+                                <FiChevronDown />
+                            </Box>
+                        </HStack>
+                        </MenuButton>
+                        <MenuList
+                            bg={useColorModeValue('white', 'gray.900')}
+                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
                             <MenuGroup>
-                                <Link href='/admin'>
-                                    <MenuItem>Admin</MenuItem>
-                                </Link>
+                                {  type === 'site' ?
+                                    (
+                                        <Link href='/admin'>
+                                        <MenuItem>Admin</MenuItem>
+                                    </Link>
+                                    )
+                                    :
+                                    (
+                                        <>
+                                            <Link href='/admin'>
+                                                <MenuItem>Forms list</MenuItem>
+                                            </Link>
+                                            <Link href='admin/create-form'>
+                                                <MenuItem>Create form</MenuItem>
+                                            </Link>
+                                        </>
+                                    )
+                                }
+                                
                                 <MenuDivider />
                                 <MenuItem onClick={handleLogout}>Logout </MenuItem>
                             </MenuGroup>
-                        )
-                        :
-                        (
-                            <MenuGroup>
-                                <Link href='/admin'>
-                                    <MenuItem>Forms list</MenuItem>
-                                </Link>
-                                <Link href='/create-form'>
-                                    <MenuItem>Create form</MenuItem>
-                                </Link>
-                                <MenuDivider />
-                                <MenuItem onClick={handleLogout}>Logout </MenuItem>
-                            </MenuGroup>
-                        )
-                        }
-                    </MenuList>
-                </Menu>
-            </Box>
+                        </MenuList>
+                    </Menu>
+                </Flex>
             )
             :
             (
                 <Box
                     display={{ base: isOpen ? "block" : "none", md: "block" }}
                     mt={{ base: 4, md: 0 }}
-                >
-                    <Skeleton height='30px' width={200}/>
+                >   
+                    <Flex align="center" gap={3}>
+                        <SkeletonCircle size='10' />
+                        <Skeleton height='20px' width={200}/>
+                    </Flex>
                 </Box>
-                
-            
             )
         }
     </Flex>

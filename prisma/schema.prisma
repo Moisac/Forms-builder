@@ -45,6 +45,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  Form          Form[]
 }
 
 model VerificationToken {
@@ -53,4 +54,16 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Form {
+  id         String   @id @default(cuid())
+  title      String
+  questions  Json
+  settings   Json
+  created_at DateTime @default(now())
+  published  Boolean  @default(false)
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
 }
