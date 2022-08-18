@@ -6,12 +6,14 @@ import FormTitle from '../../../components/FormTitle'
 import AdminLayout from '../../../layouts/AdminLayout'
 import { FiSettings } from 'react-icons/fi'
 import AddQuestion from '../../../components/AddQuestion'
+import DynamicInput from '../../../components/DynamicInput'
 
 const CreateForm: NextPage = (): JSX.Element => {
   const [ showSidebar, setShowSidebar] = useState(true)
   const [formInfo, setFormInfo] = useState({})
   const [formTitle, setFormTitle] = useState(null)
   const [isLoaded, setIsLoaded ] = useState(false)
+  const [selectedType, setSelectedType] = useState({})
   const { isOpen, onOpen, onClose } = useDisclosure()
   const btnRef = React.useRef()
 
@@ -94,7 +96,11 @@ useEffect(() => {
                 {
                   formInfo?.questions?.length
                 }
-                <AddQuestion />
+                <AddQuestion 
+                  selectedType={selectedType} 
+                  setSelectedType={setSelectedType}
+                  fromInfo={formInfo}
+                />
               </TabPanel>
               <TabPanel>
                 <p>two!</p>
@@ -128,6 +134,13 @@ useEffect(() => {
         <Container maxW='container.lg'>
           <div>CreateForm</div>
           <FormTitle formTitle={formInfo?.title} setFormTitle={setFormTitle}/>
+          
+          { formInfo?.questions && formInfo?.questions?.map((question, index) => (
+            <DynamicInput model={question?.options} inputType='text' key={index} />
+          )) 
+
+          }
+          
         </Container>
         </AdminLayout>
     )
