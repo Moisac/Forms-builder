@@ -1,21 +1,29 @@
-import { Badge, Button, Divider, Flex, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Stack, Switch, useDisclosure } from '@chakra-ui/react'
+import { Badge, Button, Divider, Flex, FormControl, FormLabel, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Stack, Switch, useDisclosure } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState } from 'react'
+import { FiEdit2 } from 'react-icons/fi'
 import { HiOutlineViewGridAdd } from 'react-icons/hi'
 import { QUESTION_TYPES } from '../constants/QuestionTypes'
+import { getApiData } from '../utils/services'
+import { v4 as uuidv4 } from 'uuid'
 
 interface IProps {
   selectedType: any;
   setSelectedType(value: any): void;
   fromInfo: any;
+  actionType: 'add' | 'edit'
+  handleEditQuestion?: (question) => void
 }
 
 
 const AddQuestion = ({
   selectedType,
   setSelectedType,
-  fromInfo
+  fromInfo,
+  actionType,
+  handleEditQuestion
 }: IProps) => {
+  const [isLoaded, setIsLoaded] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const router = useRouter()
@@ -36,24 +44,21 @@ const AddQuestion = ({
 
   const handleAddQuestion = async () => {
     const updatedForm = {
-      questions: [ ...fromInfo?.questions, { ...selectedType }]
+      questions: [ ...fromInfo?.questions, { id: uuidv4(), ...selectedType }]
     }
-    try {
-      // setIsLoaded(false)
-      const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form/${form_id}`, {
-        method: 'PATCH',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedForm)
-      })
-      await data.json()
+    const data = await getApiData(
+      `api/form/${form_id}`,
+      'PATCH',
+      setIsLoaded,
+      updatedForm
+    )
 
-    } catch(err) {
-        console.error(err)
-    } finally {
-        // setIsLoaded(true)
+    if(data?.id) {
+      await getApiData(
+        `api/form/${form_id}`,
+        'GET',
+        setIsLoaded
+      )
     }
   }
 
@@ -61,6 +66,11 @@ const AddQuestion = ({
     handleAddQuestion()
     setSelectedType({})
     onClose()
+  }
+
+  const handleEdit = () => {
+    handleEditQuestion()
+    onOpen()
   }
 
   const TypeOptions = () => {
@@ -156,14 +166,37 @@ const AddQuestion = ({
 
   return (
     <>
-      <Button colorScheme='messenger' onClick={onOpen} leftIcon={<HiOutlineViewGridAdd />} display='block'>
-        Add question
-      </Button>
+    {
+      actionType === 'add' ?
+      (
+        <Button 
+          colorScheme='messenger' 
+          onClick={onOpen} 
+          leftIcon={<HiOutlineViewGridAdd />} 
+          display='block'
+          width='100%'
+          mt='10'
+        >
+          Add question
+        </Button>
+      )
+      :
+      (
+        <IconButton
+          variant='link'
+          colorScheme='messenger'
+          aria-label='Edit'
+          fontSize='14px'
+          icon={<FiEdit2 />}
+          onClick={handleEdit}
+        />
+      )
+    }
 
       <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Choose question type</ModalHeader>
+        <ModalHeader>{ actionType === 'add' ? 'Choose question type' : 'Edit question type' }</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Stack direction='row'>
@@ -195,7 +228,7 @@ const AddQuestion = ({
             disabled={!!selectedType && !!!selectedType?.type}
             onClick={handleAdd}
           >
-            Add question
+            { actionType === 'add' ? 'Add question' : 'Edit question' }
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -1,37 +1,38 @@
-import { Button, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Input, Tab, TabList, TabPanel, TabPanels, Tabs, useDisclosure } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, Flex, IconButton, Tab, TabList, TabPanel, TabPanels, Tabs, useDisclosure, useToast } from '@chakra-ui/react'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import FormTitle from '../../../components/FormTitle'
 import AdminLayout from '../../../layouts/AdminLayout'
 import { FiSettings } from 'react-icons/fi'
-import AddQuestion from '../../../components/AddQuestion'
+import ManageQuestion from '../../../components/ManageQuestion'
 import DynamicInput from '../../../components/DynamicInput'
+import { getApiData } from '../../../utils/services'
+import { AiOutlineDelete } from 'react-icons/ai'
 
 const CreateForm: NextPage = (): JSX.Element => {
-  const [ showSidebar, setShowSidebar] = useState(true)
   const [formInfo, setFormInfo] = useState({})
   const [formTitle, setFormTitle] = useState(null)
   const [isLoaded, setIsLoaded ] = useState(false)
   const [selectedType, setSelectedType] = useState({})
+
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete} = useDisclosure()
   const btnRef = React.useRef()
 
   const router = useRouter()
+  const toast = useToast()
   const { id: form_id } = router.query
+  const cancelRef = useRef()
 
   const getFormById = async() => {
-    try {
-        setIsLoaded(false)
-        const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form/${form_id}`)
-        const json  = await data.json()
-        setFormInfo(json)
+    const data = await getApiData(
+      `api/form/${form_id}`,
+      'GET',
+      setIsLoaded
+    )
 
-    } catch(err) {
-        console.error(err)
-    } finally {
-        setIsLoaded(true)
-    }
+    setFormInfo(data)
   }
 
   const handleUpdateStatus = async () => {
@@ -39,26 +40,47 @@ const CreateForm: NextPage = (): JSX.Element => {
       published: !formInfo?.published
     }
 
-    try {
-      // setIsLoaded(false)
-      const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form/${form_id}`, {
-        method: 'PATCH',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedForm)
-      })
-      const json  = await data.json()
-      if(!!json?.id) {
-        getFormById()
-      }
+    const data = await getApiData(
+      `api/form/${form_id}`,
+      'PATCH',
+      setIsLoaded,
+      updatedForm
+    )
 
-    } catch(err) {
-        console.error(err)
-    } finally {
-        // setIsLoaded(true)
+    if(!!data?.id) {
+      getFormById()
     }
+  }
+
+  const handleEditQuestion = (question) => {
+    setSelectedType(question)
+  }
+
+  const handleDeleteQuestion = async (questionId) => {
+    const updatedQuestions = formInfo?.questions?.filter(question => question?.id !== questionId)
+    const updatedForm = {
+      questions: [ ...updatedQuestions ]
+    }
+    
+    const data = await getApiData(
+      `api/form/${form_id}`,
+      'PATCH',
+      setIsLoaded,
+      updatedForm
+    )
+
+    if(!!data?.id) {
+      onCloseDelete()
+      toast({
+        title: 'Question was successfully deleted',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+        position: 'top'
+      })
+      getFormById()
+    }
+
   }
 
 useEffect(() => {
@@ -70,7 +92,7 @@ useEffect(() => {
   return (
         <AdminLayout>
           <Button ref={btnRef} colorScheme='teal' onClick={onOpen} leftIcon={<FiSettings />}>
-          Edit form
+            Edit form
         </Button>
       <Drawer
         isOpen={isOpen}
@@ -93,14 +115,71 @@ useEffect(() => {
 
             <TabPanels>
               <TabPanel>
-                {
-                  formInfo?.questions?.length
-                }
-                <AddQuestion 
-                  selectedType={selectedType} 
-                  setSelectedType={setSelectedType}
-                  fromInfo={formInfo}
-                />
+                { formInfo?.questions && formInfo?.questions?.map((question, index) => (
+                  <Flex 
+                    key={index} 
+                    background='gray.100'
+                    my='2'
+                    p='2'
+                    borderRadius='5'
+                    justifyContent='space-between'
+                  >
+                    <Badge 
+                      colorScheme={question?.badgeColor}
+                      p='1'
+                      borderRadius='5'
+                    >
+                      { question?.type }
+                    </Badge>
+                    <Box>
+                       <ManageQuestion 
+                        selectedType={selectedType} 
+                        setSelectedType={setSelectedType}
+                        fromInfo={formInfo}
+                        actionType='edit'
+                        handleEditQuestion={() => handleEditQuestion(question)}
+                      />
+                       <IconButton
+                        variant='link'
+                        colorScheme='red'
+                        aria-label='Delete'
+                        fontSize='14px'
+                        p='1'
+                        icon={<AiOutlineDelete />}
+                        onClick={onOpenDelete}
+                      />
+                    </Box>
+
+                    <AlertDialog
+                      isOpen={isOpenDelete}
+                      leastDestructiveRef={cancelRef}
+                      onClose={onCloseDelete}
+                    >
+                      <AlertDialogOverlay>
+                        <AlertDialogContent>
+                          <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                            Delete question
+                          </AlertDialogHeader>
+
+                          <AlertDialogBody>
+                            Are you sure you want to delete this question?
+                          </AlertDialogBody>
+
+                          <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onCloseDelete}>
+                              Cancel
+                            </Button>
+                            <Button colorScheme='red' ml={3} onClick={() => handleDeleteQuestion(question?.id)}>
+                              Delete
+                            </Button>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialogOverlay>
+                    </AlertDialog>
+                  </Flex>
+                )) 
+              }
+  
               </TabPanel>
               <TabPanel>
                 <p>two!</p>
@@ -113,10 +192,12 @@ useEffect(() => {
           </DrawerBody>
 
           <DrawerFooter>
-            <Button variant='outline' mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme='blue'>Save</Button>
+          <ManageQuestion 
+            selectedType={selectedType} 
+            setSelectedType={setSelectedType}
+            fromInfo={formInfo}
+            actionType='add'
+          />
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -137,8 +218,7 @@ useEffect(() => {
           
           { formInfo?.questions && formInfo?.questions?.map((question, index) => (
             <DynamicInput model={question?.options} inputType='text' key={index} />
-          )) 
-
+            )) 
           }
           
         </Container>

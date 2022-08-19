@@ -2,27 +2,24 @@ import { Box, Flex, Skeleton, Text } from '@chakra-ui/react'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
+import { getApiData } from '../utils/services'
 
 const FormsList = () => {
     const [forms, setForms] = useState([])
     const [isLoaded, setIsLoaded] = useState(false)
 
-    const fetchForms = async() => {
-        try {
-            setIsLoaded(false)
-            const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form`)
-            const json  = await data.json()
-            setForms(json)
+    const getForms = async() => {
+        const data = await getApiData(
+            'api/form',
+            'GET',
+            setIsLoaded,
+        )
 
-        } catch(err) {
-            console.error(err)
-        } finally {
-            setIsLoaded(true)
-        }
+        setForms(data)
     }
 
     useEffect(() => {
-        fetchForms()
+        getForms()
     }, [])
 
   return (

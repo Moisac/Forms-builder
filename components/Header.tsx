@@ -27,6 +27,7 @@ import Link from "next/link"
 import { FiChevronDown, FiMenu } from "react-icons/fi"
 import { BsClipboardPlus } from "react-icons/bs"
 import Router, { useRouter } from "next/router"
+import { getApiData } from "../utils/services"
 
 interface IProps {
     type: 'site' | 'admin',
@@ -47,25 +48,12 @@ const Header = ({ type }: IProps) => {
             settings: "",
             userId: "cl6t9t9re0318jwubdzps0r01"
         }
-        
-        try {
-            setLoading(true)
-            const data = await fetch(`${process.env.NEXT_PUBLIC_ROOT_URL}api/form`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(addedForm),
-            })
-            const json  = await data.json()
-            return json
-
-        } catch(err) {
-            console.error(err)
-        } finally {
-            setLoading(false)
-        }
+        await getApiData(
+            'api/form',
+            'POST',
+            setLoading,
+            addedForm
+        )
     }
 
     const handleLogout = () => {
