@@ -4,17 +4,20 @@ import { BsCheck2 } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io"
 
 interface IProps {
-  formTitle: string;
-  setFormTitle: (value: SetStateAction<null>) => void;
+  formTitle: string
+  setFormTitle: (value: SetStateAction<null>) => void
+  handleUpdateTitle: () => void
 }
 
 const FormTitle = ({
   formTitle,
-  setFormTitle
+  setFormTitle,
+  handleUpdateTitle
 }: IProps) => {
     function EditableControls() {
       const {
         isEditing,
+        setIsEditing,
         getSubmitButtonProps,
         getCancelButtonProps,
         getEditButtonProps
@@ -23,7 +26,7 @@ const FormTitle = ({
   
       return isEditing ? (
         <ButtonGroup justifyContent="end" size="sm" w="full" spacing={2} mt={2}>
-          <IconButton icon={<BsCheck2 />} {...getSubmitButtonProps()} />
+          <IconButton icon={<BsCheck2 />} {...getSubmitButtonProps()} onClick={handleUpdateTitle}/>
           <IconButton
             icon={<IoMdClose />}
             {...getCancelButtonProps()}

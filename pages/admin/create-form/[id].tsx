@@ -1,4 +1,4 @@
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, Flex, IconButton, Tab, TabList, TabPanel, TabPanels, Tabs, useDisclosure, useToast } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Badge, Box, Button, Container, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, Flex, IconButton, Tab, TabList, TabPanel, TabPanels, Tabs, useDisclosure, useToast } from '@chakra-ui/react'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
@@ -52,6 +52,20 @@ const CreateForm: NextPage = (): JSX.Element => {
     }
   }
 
+  const handleUpdateTitle = async () => {
+    const updatedForm = {
+      title: formTitle
+    }
+
+    await getApiData(
+      `api/form/${form_id}`,
+      'PATCH',
+      setIsLoaded,
+      updatedForm
+    )
+
+  }
+
   const handleEditQuestion = (question) => {
     setSelectedType(question)
   }
@@ -90,9 +104,9 @@ useEffect(() => {
 }, [form_id])
 
   return (
-        <AdminLayout>
-          <Button ref={btnRef} colorScheme='teal' onClick={onOpen} leftIcon={<FiSettings />}>
-            Edit form
+    <AdminLayout>
+        <Button ref={btnRef} colorScheme='teal' onClick={onOpen} leftIcon={<FiSettings />}>
+          Edit form
         </Button>
       <Drawer
         isOpen={isOpen}
@@ -138,6 +152,7 @@ useEffect(() => {
                         fromInfo={formInfo}
                         actionType='edit'
                         handleEditQuestion={() => handleEditQuestion(question)}
+                        setFormInfo={setFormInfo}
                       />
                        <IconButton
                         variant='link'
@@ -197,6 +212,7 @@ useEffect(() => {
             setSelectedType={setSelectedType}
             fromInfo={formInfo}
             actionType='add'
+            setFormInfo={setFormInfo}
           />
           </DrawerFooter>
         </DrawerContent>
@@ -214,15 +230,18 @@ useEffect(() => {
  
         <Container maxW='container.lg'>
           <div>CreateForm</div>
-          <FormTitle formTitle={formInfo?.title} setFormTitle={setFormTitle}/>
+          <FormTitle 
+            formTitle={formInfo?.title} 
+            setFormTitle={setFormTitle} 
+            handleUpdateTitle={handleUpdateTitle}
+          />
           
           { formInfo?.questions && formInfo?.questions?.map((question, index) => (
             <DynamicInput model={question?.options} inputType='text' key={index} />
             )) 
           }
-          
         </Container>
-        </AdminLayout>
+      </AdminLayout>
     )
 }
 

@@ -13,6 +13,7 @@ interface IProps {
   fromInfo: any;
   actionType: 'add' | 'edit'
   handleEditQuestion?: (question) => void
+  setFormInfo: (info) => void
 }
 
 
@@ -21,7 +22,8 @@ const AddQuestion = ({
   setSelectedType,
   fromInfo,
   actionType,
-  handleEditQuestion
+  handleEditQuestion,
+  setFormInfo
 }: IProps) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -43,8 +45,17 @@ const AddQuestion = ({
   }
 
   const handleAddQuestion = async () => {
-    const updatedForm = {
-      questions: [ ...fromInfo?.questions, { id: uuidv4(), ...selectedType }]
+    let updatedForm = {}
+
+    if(actionType === 'add') {
+      updatedForm = {
+        questions: [ ...fromInfo?.questions, { id: uuidv4(), ...selectedType }]
+      }
+    } else if(actionType === 'edit') {
+      const filteredQuestions = fromInfo?.questions.filter(question => question.id !== selectedType?.id)
+      updatedForm = {
+        questions: [ ...filteredQuestions, { ...selectedType }]
+      }
     }
     const data = await getApiData(
       `api/form/${form_id}`,
@@ -52,6 +63,8 @@ const AddQuestion = ({
       setIsLoaded,
       updatedForm
     )
+
+    setFormInfo(data)
 
     if(data?.id) {
       await getApiData(
