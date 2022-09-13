@@ -2,13 +2,14 @@ import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, Al
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
-import FormTitle from '../../../components/FormTitle'
-import AdminLayout from '../../../layouts/AdminLayout'
+import FormTitle from '../../../../components/FormTitle'
+import AdminLayout from '../../../../layouts/AdminLayout'
 import { FiSettings } from 'react-icons/fi'
-import ManageQuestion from '../../../components/ManageQuestion'
-import DynamicInput from '../../../components/DynamicInput'
-import { getApiData } from '../../../utils/services'
+import ManageQuestion from '../../../../components/ManageQuestion'
+import DynamicInput from '../../../../components/DynamicInput'
+import { getApiData } from '../../../../utils/services'
 import { AiOutlineDelete } from 'react-icons/ai'
+import FormNavigation from '../../../../components/FormNavigation'
 
 const CreateForm: NextPage = (): JSX.Element => {
   const [formInfo, setFormInfo] = useState({})
@@ -105,6 +106,7 @@ useEffect(() => {
 
   return (
     <AdminLayout>
+        <FormNavigation />
         <Button ref={btnRef} colorScheme='teal' onClick={onOpen} leftIcon={<FiSettings />}>
           Edit form
         </Button>
@@ -145,6 +147,7 @@ useEffect(() => {
                     >
                       { question?.type }
                     </Badge>
+                    <b>{ question?.options?.name }</b>
                     <Box>
                        <ManageQuestion 
                         selectedType={selectedType} 

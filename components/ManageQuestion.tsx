@@ -89,33 +89,45 @@ const AddQuestion = ({
   const TypeOptions = () => {
     return (
       <>
-       {selectedType?.options && 'required' in selectedType?.options && 
-        <Flex>
-              <FormLabel htmlFor='isRequired'>isRequired:</FormLabel>
-              <Switch 
-                id='isRequired' 
-                isChecked={selectedType?.options?.required} 
-                onChange={() => handleOption('required', !selectedType?.options?.required)}
-              />
-        </Flex>}
+        <FormControl>
+            <FormLabel>Name</FormLabel>
+            <Input 
+              name='name'
+              type='text'
+              placeholder='Question name'
+              value={selectedType?.options?.name}
+              onChange={(e) => handleOption('name', e?.target?.value)}
+            />
+        </FormControl>
+       { selectedType?.options && 'required' in selectedType?.options && 
+          <Flex>
+                <FormLabel htmlFor='isRequired'>isRequired:</FormLabel>
+                <Switch 
+                  id='isRequired' 
+                  isChecked={selectedType?.options?.required} 
+                  onChange={() => handleOption('required', !selectedType?.options?.required)}
+                />
+          </Flex>
+        }
 
-        {selectedType?.options && 'minLength' in selectedType?.options &&
-        <Flex>
-          <FormLabel htmlFor='minLength'>Min length:</FormLabel>
-          <NumberInput 
-            defaultValue={1} 
-            min={1} 
-            max={50} 
-            value={selectedType?.options?.minLength} 
-            onChange={(value: number) => handleOption('minLength', Number(value))}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </Flex>}
+        { selectedType?.options && 'minLength' in selectedType?.options &&
+          <Flex>
+            <FormLabel htmlFor='minLength'>Min length:</FormLabel>
+            <NumberInput 
+              defaultValue={1} 
+              min={1} 
+              max={50} 
+              value={selectedType?.options?.minLength} 
+              onChange={(value: number) => handleOption('minLength', Number(value))}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </Flex>
+        }
 
         {selectedType?.options && 'maxLength' in selectedType?.options &&
         <Flex>

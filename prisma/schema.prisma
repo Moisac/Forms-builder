@@ -57,13 +57,23 @@ model VerificationToken {
 }
 
 model Form {
-  id         String   @id @default(cuid())
+  id         String     @id @default(cuid())
   title      String
   questions  Json
   settings   Json
-  created_at DateTime @default(now())
-  published  Boolean  @default(false)
-  updated_at DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  created_at DateTime   @default(now())
+  published  Boolean    @default(false)
+  updated_at DateTime   @updatedAt
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
+  responses  Response[]
+}
+
+model Response {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  form       Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  formId     String
+  duration   Int?
+  content    Json
 }

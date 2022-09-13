@@ -30,7 +30,7 @@ const FormsList = () => {
     const handleCopyUrl = () => {
         onCopy()
         toast({
-            title: 'URL was successfully copied',
+            title: 'Link was successfully copied',
             status: 'success',
             duration: 2000,
             isClosable: true,
@@ -54,7 +54,7 @@ const FormsList = () => {
                 key={form?.id}
             >
                 <Box>
-                    <Link href={`/admin/create-form/${form?.id}`} key={form?.id}>
+                    <Link href={`/admin/form/${form?.id}/create`} key={form?.id}>
                         <Text>{ form?.title }</Text>
                     </Link>
                 </Box>
@@ -65,7 +65,7 @@ const FormsList = () => {
                     <Text>{ form?.published ? 'Active' : 'Disabled' }</Text>
                 </Box>
                 <Box display='flex' justifyContent='space-between' gap='10px'>
-                    <Link href={`/admin/create-form/${form?.id}`}>
+                    <Link href={`/admin/form/${form?.id}/create`}>
                         <FiEdit2 />
                     </Link>
                     <Menu>

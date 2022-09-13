@@ -64,7 +64,7 @@ const Header = ({ type }: IProps) => {
         const createdForm = await createForm()
         console.log({createdForm})
         if(!!createdForm?.id) {
-            router.push(`/admin/create-form/${createdForm?.id}`)
+            router.push(`/admin/form/${createdForm?.id}/create`)
         }
     }
 
@@ -192,7 +192,7 @@ const Header = ({ type }: IProps) => {
                                             <Link href='/admin'>
                                                 <MenuItem>Forms list</MenuItem>
                                             </Link>
-                                            <Link href='admin/create-form'>
+                                            <Link href='admin/form'>
                                                 <MenuItem>Create form</MenuItem>
                                             </Link>
                                         </>
