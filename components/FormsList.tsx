@@ -1,14 +1,18 @@
-import { Box, Button, Flex, Menu, MenuButton, MenuItem, MenuList, Skeleton, Text, useClipboard, useToast } from '@chakra-ui/react'
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Flex, Menu, MenuButton, MenuItem, MenuList, Skeleton, Text, useClipboard, useDisclosure, useToast } from '@chakra-ui/react'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FiEdit2, FiMoreVertical } from 'react-icons/fi'
 import { getApiData } from '../utils/services'
 import { TbCopy } from 'react-icons/tb' 
+import { AiOutlineDelete } from 'react-icons/ai'
 
 const FormsList = () => {
     const [forms, setForms] = useState([])
     const [isLoaded, setIsLoaded] = useState(false)
     const [selectedForm, setSelectedForm] = useState('')
+
+    const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete} = useDisclosure()
+    const cancelRef = useRef()
 
     const toast = useToast()
     const { onCopy } = useClipboard(`${process.env.NEXT_PUBLIC_ROOT_URL}/form/${selectedForm}`)
@@ -21,6 +25,26 @@ const FormsList = () => {
         )
 
         setForms(data)
+    }
+
+    const deleteForm = async() => {
+        const data = await getApiData(
+            `api/form/${selectedForm}`,
+            'DELETE',
+            setIsLoaded,
+        )
+
+        if(!!data?.id) {
+            onCloseDelete()
+            toast({
+              title: 'Form was successfully deleted',
+              status: 'success',
+              duration: 4000,
+              isClosable: true,
+              position: 'top'
+            })
+            getForms()
+          }
     }
 
     useEffect(() => {
@@ -76,9 +100,12 @@ const FormsList = () => {
                         </MenuButton>
                             <MenuList>
                                 <MenuItem onClick={handleCopyUrl} >
-                                <TbCopy /> Copy link
-                            </MenuItem>
-                        </MenuList>
+                                    <TbCopy /> Copy link
+                                </MenuItem>
+                                <MenuItem onClick={onOpenDelete} >
+                                    <AiOutlineDelete /> Delete form
+                                </MenuItem>
+                            </MenuList>
                     </Menu>
                 </Box>
             </Flex>
@@ -190,6 +217,33 @@ const FormsList = () => {
         </>
         )
         }
+
+        <AlertDialog
+            isOpen={isOpenDelete}
+            leastDestructiveRef={cancelRef}
+            onClose={onCloseDelete}
+        >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                    <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                    Delete form
+                    </AlertDialogHeader>
+
+                    <AlertDialogBody>
+                    Are you sure you want to delete this form?
+                    </AlertDialogBody>
+
+                    <AlertDialogFooter>
+                    <Button ref={cancelRef} onClick={onCloseDelete}>
+                        Cancel
+                    </Button>
+                    <Button colorScheme='red' ml={3} onClick={deleteForm}>
+                        Delete
+                    </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+        </AlertDialog>
     </>
   )
 }
