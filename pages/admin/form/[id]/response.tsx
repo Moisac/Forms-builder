@@ -47,15 +47,23 @@ const Response = () => {
                 </Tr>
                 </Thead>
                 <Tbody>
-                    { tableValues?.length > 0 && tableValues?.map((field) => (
+                    {/* { tableValues?.length > 0 && tableValues?.map((field) => (
                         <Tr key={field}>
                             <Td>{ field }</Td>
                         </Tr>
                     )) 
-                    }
+                    } */}
+                    <Tr>
+                        {
+                            formResponses?.content?.map(response => (
+                                <Td key={response}>{ response }</Td>
+                            ))
+                        }
+                    </Tr>
                 </Tbody>
             </Table>
         </TableContainer>
+        {console.log(tableValues)}
     </AdminLayout>
   )
 }

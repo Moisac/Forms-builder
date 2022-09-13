@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Stack,
@@ -34,7 +34,6 @@ interface IProps {
 }
 
 const Header = ({ type }: IProps) => {
-    // const [createdForm, setCreatedForm] = useState({})
     const [loading, setLoading] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure();
     const handleToggle = () => (isOpen ? onClose() : onOpen());
@@ -62,7 +61,7 @@ const Header = ({ type }: IProps) => {
 
     const handleAddFrom = async () => {
         const createdForm = await createForm()
-        console.log({createdForm})
+
         if(!!createdForm?.id) {
             router.push(`/admin/form/${createdForm?.id}/create`)
         }
@@ -88,9 +87,11 @@ const Header = ({ type }: IProps) => {
         />
        }
       <Flex align="center" mr={5}>
-        <Heading as="h1" size="lg" letterSpacing={"tighter"}>
-          Forms builder
-        </Heading>
+        <Link href="/">
+            <Heading as="h1" size="lg" letterSpacing={"tighter"} cursor="pointer">
+            Forms builder
+            </Heading>
+        </Link>
       </Flex>
 
       {
